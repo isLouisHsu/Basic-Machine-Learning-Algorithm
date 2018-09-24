@@ -7,7 +7,7 @@ from scipy.io import loadmat
 data_pca = './data/ex7data1.mat'
 # Example Dataset for K-means
 data_kmeans = './data/ex7data2.mat'
-# Faces Dataset
+# Faces Dataset - 5000 x 1024
 facefile  = './data/ex7faces.mat'
 # Example Image
 image_bird = './data/bird_small.png'
@@ -15,7 +15,7 @@ image_star = './data/star.png'
 
 def load_2D(filename, display=False):
     data = loadmat(filename)
-    X = data['X']
+    X = data['X'].astype('float')
     if display:
         plt.figure()
         plt.scatter(X[:, 0], X[:, 1])
@@ -35,5 +35,5 @@ def load_image_c3(filename, dsize=(-1, -1), display=False):
     return np.array(img)
 
 if __name__ == '__main__':
-    # load_2D(data_kmeans, display=True)
+    load_2D(facefile)
     pass
