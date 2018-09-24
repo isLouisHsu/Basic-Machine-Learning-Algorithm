@@ -80,12 +80,12 @@ class KMeans():
                     plt.pause(0.5)
                 # -------------
                 loss_now = loss(ctDist); moved = np.abs(loss_last - loss_now)
-                if moved < min_move: # 若移动过小，则本次迭代收敛
+                if moved < min_move:                    # 若移动过小，则本次迭代收敛
                     isDone = True
                     print('第%d次迭代结束，中心点更新%d次' % (n_iter, n_update))
                 else: loss_last = loss_now
             if loss_now < loss_min:
-                self.centroids = centroids_tmp
+                self.centroids = centroids_tmp          # 保存损失最小的模型(最优)
                 loss_min = loss_now
                 # print('聚类结果已更新')
         self.loss = loss_min
