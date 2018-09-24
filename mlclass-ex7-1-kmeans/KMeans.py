@@ -80,12 +80,12 @@ class KMeans():
                     plt.pause(0.5)
                 # -------------
                 loss_now = loss(ctDist); moved = np.abs(loss_last - loss_now)
-                if moved < min_move: # 若移动过小，则本次迭代收敛
+                if moved < min_move:                    # 若移动过小，则本次迭代收敛
                     isDone = True
                     print('第%d次迭代结束，中心点更新%d次' % (n_iter, n_update))
                 else: loss_last = loss_now
             if loss_now < loss_min:
-                self.centroids = centroids_tmp
+                self.centroids = centroids_tmp          # 保存损失最小的模型(最优)
                 loss_min = loss_now
                 # print('聚类结果已更新')
         self.loss = loss_min
@@ -95,9 +95,9 @@ class KMeans():
         '''
         各个样本的最近簇中心索引
         '''
-        labels = -np.ones(shape=(X.shape[0],), dtype=np.int) # 初始化为-1，可用作异常条件
+        labels = -np.ones(shape=(X.shape[0],), dtype=np.int)    # 初始化为-1，可用作异常条件
         for i in range(X.shape[0]):
-            dists_i = np.zeros(shape=(self.n_cluster,))
+            dists_i = np.zeros(shape=(self.n_cluster,))         # 保存X[i]到中心点Cn的距离
             for n in range(self.n_cluster):
                 dists_i[n] = mathFunc.distance(X[i], self.centroids[n], mode=self.mode)
             if self.mode == 'Euclidean':
