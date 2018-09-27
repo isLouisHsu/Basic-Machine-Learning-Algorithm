@@ -132,12 +132,12 @@ class AnomalyDetection():
         return 2 * prec * rec / (prec + rec)
     # ------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
-    X, Xval, yval = load_data.load_X_X_yval(load_data.ADfile1)
+    X, Xval, yval = load_data.load_X_X_yval(load_data.ADfile2)
 
     estimator = AnomalyDetection()
     estimator.fit(X, Xval, yval)
 
-    yval_pred = estimator.predict(X)
+    yval_pred = estimator.predict(Xval)
     prec = estimator.score_precision(yval, yval_pred, pos=0)
     rec  = estimator.score_recall(yval, yval_pred, pos=0)
     f1 = estimator.score_f1(prec, rec)

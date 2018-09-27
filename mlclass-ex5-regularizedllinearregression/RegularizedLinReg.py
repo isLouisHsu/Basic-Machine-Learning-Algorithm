@@ -47,10 +47,17 @@ class RegularizedLinearRegression():
         print("当前总体样本损失为: ", loss)
         return self.theta
 
-    def predict(self, X):
+    def predict(self, X, pre=False):
         '''
         预测线性回归结果
         '''
+        if pre:
+            # 加入全1列
+            X = np.c_[np.ones(shape=(X.shape[0])), X]
+            # 构造高次特征
+            if self.n_ploy > 1:
+                for i in range(2, self.n_ploy + 1):
+                    X = np.c_[X, X[:, 1]**i]
         return X.dot(self.theta)
     def lossFunctionDerivative(self, X, y):
         '''
@@ -69,19 +76,27 @@ class RegularizedLinearRegression():
         return 0.5 * np.mean(np.square(err))
 
 if __name__ == '__main__':
-    X = np.arange(-5, 5, 1)
-    y = 10 * X**2 + 20 * X + 30
-    y = y.astype('float')
-    y += np.random.rand(y.shape[0])
+    X = np.arange(-1, 1, 0.01)
+    y = 20*X**3 - 50 * X**2 - 20 * X + 30 # 期望模型
+    y += 10*np.random.rand(y.shape[0])  # 噪声
 
-    estimator1 = RegularizedLinearRegression(n_ploy=2, n_batch=1, regularize=0.0)
+    plt.figure(0)   # 创建一个窗口，画布
+    plt.scatter(X, y)   # 描点
+    # plt.show()
+
+    estimator1 = RegularizedLinearRegression(n_ploy=3, n_batch=1, regularize=0.0)
     estimator1.fit(X, y, learning_rate=0.01, max_iter=5000, min_loss=0)
 
-    estimator2 = RegularizedLinearRegression(n_ploy=2, n_batch=1, regularize=10.0)
-    estimator2.fit(X, y, learning_rate=0.01, max_iter=5000, min_loss=0)
+    y_pred = estimator1.predict(X, pre=True)  # 预测
+    plt.figure(0)
+    plt.plot(X, y_pred, c='r')
+    plt.show()
+
+    # estimator2 = RegularizedLinearRegression(n_ploy=2, n_batch=1, regularize=10.0)
+    # estimator2.fit(X, y, learning_rate=0.01, max_iter=5000, min_loss=0)
     
     print(estimator1.theta)
-    print(estimator2.theta)
+    # print(estimator2.theta)
 
     '''
     [30.49931186 19.97259836  9.98883834]
