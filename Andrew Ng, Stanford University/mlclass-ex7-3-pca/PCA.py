@@ -17,7 +17,7 @@ class PrincipalComponentAnalysis():
         self.varVal  = np.var(X, axis=0)                    # 训练样本每个特征上的的方差
         X_normalized = (X - self.meanVal) / self.varVal     # 归一化训练样本
         # 第二步：计算协方差矩阵
-        # cov = X_normalized.T.dot(X)
+        # cov = X_normalized.T.dot(X_normalized)
         cov = np.cov(X_normalized.T)                        # 协方差矩阵
         eigVal, eigVec = np.linalg.eig(cov)                 # EVD
         order = np.argsort(eigVal)[::-1]                    # 从大到小排序

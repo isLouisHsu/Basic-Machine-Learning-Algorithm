@@ -1,3 +1,8 @@
+'''
+问题：计算得到的有些概率P(yc|Xi)>1
+    我用朴素贝叶斯分类器写了一个能识别代码语言的小工具，但是计算联合概率的时候遇到了点问题。 
+    - V2EX https://www.v2ex.com/t/190152
+'''
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
 
@@ -10,14 +15,13 @@ P(yc|X) = ——————————————————
 class NaiveBayes():
     def __init__(self):
         self.featureEncoder = OneHotEncoder()
-        self.labelEncoder = OneHotEncoder()
         self.n_labels = None; self.n_features = None
         self.P_X = None                         # 各特征的概率              (n_features,)
         self.P_Y = None                         # 各类别的概率              (n_labels,)
         self.P_X_Y = None                       # 各类别下各特征的条件概率   (n_labels, n_features)
     def fit(self, X, y):
         X_encoded = self.featureEncoder.fit_transform(X).toarray()                  # toarray()将csr稀疏矩阵转换为稠密矩阵
-        y_encoded = self.labelEncoder.fit_transform(y.reshape((-1, 1))).toarray()   # toarray()将csr稀疏矩阵转换为稠密矩阵
+        y_encoded = OneHotEncoder().fit_transform(y.reshape((-1, 1))).toarray()   # toarray()将csr稀疏矩阵转换为稠密矩阵
         self.P_X = np.mean(X_encoded, axis=0)                           # one-hot编码下，各列的均值即各特征的概率
         self.P_Y = np.mean(y_encoded, axis=0)                           # one-hot编码下，各列的均值即各了别的概率
         self.n_labels, self.n_features = y_encoded.shape[1], X_encoded.shape[1]   
@@ -25,7 +29,6 @@ class NaiveBayes():
         for i in range(self.n_labels):
             X_encoded_of_yi = X_encoded[y_encoded[:, i]==1]             # 取出属于i类别的样本
             self.P_X_Y[i] = np.mean(X_encoded_of_yi, axis=0)            # one-hot编码下，各列的均值即各特征的概率
-        pass
     def predict(self, X):
         X_encoded = self.featureEncoder.transform(X).toarray()
         n_samples = X_encoded.shape[0]
@@ -37,7 +40,6 @@ class NaiveBayes():
                 P_Xi_encoded    = X_encoded[i] * self.P_X
                 P_Xi_encoded[P_Xi_encoded==0.0] = 1.0
                 y_pred_prob[i, j] = self.P_Y[j] * P_Xi_encoded_Yj.prod() / P_Xi_encoded.prod()
-                pass
         return np.argmax(y_pred_prob, axis=1)
     def score(self, y_true, y_pred):
         ''' accuracy '''
