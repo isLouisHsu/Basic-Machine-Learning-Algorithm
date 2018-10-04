@@ -32,12 +32,16 @@ def display(X, filename, dsize=(48, 48)):
     cv2.imwrite(filename, showImg)
 
 
+
+
 X = X.astype('uint8')
 display(X, filename='./data/face_origin.png')
 
 X_reduced = MinMaxScaler(feature_range=(0, 255)).fit_transform(X_reduced.astype('float64'))
 display(X_reduced, filename='./data/face_reduced.png')
 
-X_restructed = MinMaxScaler(feature_range=(0, 255)).fit_transform(X_restructed.astype('float64'))
+X_restructed = X_restructed.astype('uint8')
 display(X_restructed, filename='./data/face_restructed.png')
 
+loss = np.mean(np.sqrt(np.sum((X - X_restructed)**2, axis=1)))
+print(loss)
