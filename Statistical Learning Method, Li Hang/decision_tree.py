@@ -58,7 +58,7 @@ class DecisionTree():
         H_D_A = np.zeros(shape=(X.shape[1],))                       # 初始化数组
         for i_feature in range(X.shape[1]):                         # 每一个特征
             X_feature = X[:, i_feature]                             # 取出该列特征
-            if len(set(X_feature)) == 1: H_D_A[i_feature] = float('inf'); continue
+            if len(set(X_feature)) == 1: H_D_A[i_feature] = float('inf'); continue  # 若该特征只有一种取值，表示已使用该列作为分类特征
             X_feature_encoded = OneHotEncoder().fit_transform(X_feature.reshape((-1, 1))).toarray()
             p_X = np.mean(X_feature_encoded, axis=0)                # 每个取值的概率
             for j_feature in range(X_feature_encoded.shape[1]):     # 该特征取值有几种，编码后就有几列
