@@ -36,10 +36,12 @@ class NaiveBayes():
         for i in range(n_samples):
             for j in range(self.n_labels):
                 P_Xi_encoded_Yj = X_encoded[i] * self.P_X_Y[j]          # 在Yj类别下，选出输入样本Xi对应的条件概率
-                P_Xi_encoded_Yj[P_Xi_encoded_Yj==0.0] = 1.0             # 将为0值替换为1，便于求解ΠP(Xi|yc)，只要将各元素累乘即可
                 P_Xi_encoded    = X_encoded[i] * self.P_X
+
+                P_Xi_encoded_Yj[P_Xi_encoded_Yj==0.0] = 1.0             # 将为0值替换为1，便于求解ΠP(Xi|yc)，只要将各元素累乘即可
                 P_Xi_encoded[P_Xi_encoded==0.0] = 1.0
-                y_pred_prob[i, j] = self.P_Y[j] * P_Xi_encoded_Yj.prod() / P_Xi_encoded.prod()
+
+                y_pred_prob[i, j] = self.P_Y[j] * P_Xi_encoded_Yj.prod()# / P_Xi_encoded.prod()  # 注意，分母是全概率公式，不能使用朴素贝叶斯
         return np.argmax(y_pred_prob, axis=1)
     def score(self, y_true, y_pred):
         ''' accuracy '''
@@ -85,7 +87,7 @@ if __name__ == '__main__':
         [3, 2],
         [3, 2]
     ]
-    y = [0 ,0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0]
+    y = [0 ,0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0]
     X = np.array(X); y = np.array(y)
     X_test = np.array([[2, 0], [1, 1]])
 
@@ -97,6 +99,6 @@ if __name__ == '__main__':
     print(y_pred)
 
     '''
-    准确率:  0.7333333333333333
-    [0 0]
+    准确率:  0.8
+    [1 0]
     '''
