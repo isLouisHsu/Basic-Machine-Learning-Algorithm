@@ -129,9 +129,9 @@ if __name__ == "__main__":
     
     # show first image
     plt.figure(0)
-    plt.imshow(X[0, :, :, :])
+    plt.imshow(X[0, :, :, 0])
 
-    decomposer = NDarrayPCA(n_components=[64, 32, None], use_sklearn=False)
+    decomposer = NDarrayPCA(n_components=[None, None, 1], use_sklearn=False)
     # decomposer = NDarrayPCA(n_components=None, use_sklearn=False)
     decomposer.fit(X)
 
@@ -139,11 +139,11 @@ if __name__ == "__main__":
 
     # show first decomposed image
     plt.figure(1)
-    plt.imshow(X_transformed[0, :, :, :])
+    plt.imshow(X_transformed[0, :, :, 0])
 
     X_transformed_inv = decomposer.transform_inv(X_transformed).astype('uint8')
 
     # show first inverse-decomposed image
     plt.figure(2)
-    plt.imshow(X_transformed_inv[0, :, :, :])
+    plt.imshow(X_transformed_inv[0, :, :, 0])
     plt.show()
