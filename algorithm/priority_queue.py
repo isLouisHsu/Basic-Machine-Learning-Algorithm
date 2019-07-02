@@ -17,10 +17,10 @@ class PriorityQueue():
     
     def __next__(self):
         try:
-            num = self.extract_maximun()
+            return self.extract_maximun()
         except:
             raise StopIteration
-        return num
+        
 
     def __repr__(self):
         
