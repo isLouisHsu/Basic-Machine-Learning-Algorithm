@@ -1,5 +1,20 @@
 import numpy as np
-from heapsort import _build_max_heap, _max_heapify
+from heapSort import _build_max_heap, _max_heapify
+
+def _max_priority_queue(A, i):
+    """
+    Params:
+        A: {list}
+        i: {int} index of current number
+    """
+    while i > 0:
+        p = (i - 1) // 2    # 父节点索引
+        if A[i] <= A[p]:
+            break
+        
+        A[i], A[p] = A[p], A[i]
+        i = p
+    return A
 
 class PriorityQueue():
     """
@@ -20,7 +35,6 @@ class PriorityQueue():
             return self.extract_maximun()
         except:
             raise StopIteration
-        
 
     def __repr__(self):
         
@@ -37,35 +51,23 @@ class PriorityQueue():
             ret += "\n"
         return ret
 
-    def _max_priority_queue(self, i):
-        """
-        Params:
-            i: {int} index of current number
-        """
-        while i > 0:
-            p = (i - 1) // 2    # 父节点索引
-            if self.nums[i] <= self.nums[p]:
-                break
-            
-            self.nums[i], self.nums[p] = self.nums[p], self.nums[i]
-            i = p
 
     def insert(self, num):
         """
         Params:
             num: {numerical object}
         """
-        self.nums += [num]
-        self._max_priority_queue(len(self)-1)
+        self.nums += [num]      # 插入到最后节点位置
+        _max_priority_queue(self.nums, len(self)-1) # 上浮
     
     def maximum(self):
         return self.nums[0]
     
     def pop(self):
-        ## 最后一个节点上浮
+        ## 最后一个节点交换至最后位置
         self.nums[0], self.nums[-1] = self.nums[-1], self.nums[0]
         maxNum = self.nums.pop(-1)
-        _max_heapify(self.nums, 0)
+        _max_heapify(self.nums, 0)  # 第一个节点下降
         return maxNum
 
     def change(self, i, num):
@@ -77,10 +79,10 @@ class PriorityQueue():
         if i >= len(self): return
 
         temp = self.nums[i]
-        self.nums[i] = num
-        if num >= temp:
-            self._max_priority_queue(i)
-        else:
+        self.nums[i] = num      # 修改该值
+        if num >= temp:         # 上浮
+            _max_priority_queue(self.nums, i)
+        else:                   # 下降
             _max_heapify(self.nums, i)
 
 if __name__ == "__main__":

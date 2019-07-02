@@ -37,7 +37,7 @@ def _build_max_heap(A):
         A = _max_heapify(A, i)
     return A
 
-def heapsort(A, inverse=False):
+def hsort(A, inverse=False):
     n = len(A)
 
     ## 先建最大堆
@@ -48,12 +48,13 @@ def heapsort(A, inverse=False):
         ## 将最大值A[0]与最后元素交换，并弹出
         A[0], A[-1] = A[-1], A[0]
         H += [A.pop(-1)]
-        ## 重新更新最大堆
+        ## 重新更新最大堆，即A[0]下降至合适位置，当前最大的值上浮到A[0]
         A = _max_heapify(A, 0)
     
+    H = H if inverse else H[::-1]
     return H
 
 if __name__ == "__main__":
     A = [4, 1, 3, 2, 16, 9, 10, 14, 8, 7]
-    H = heapsort(A)
+    H = hsort(A)
     print(H)
