@@ -25,6 +25,8 @@ def load(path):
         user_id: {ndarray(n)}
         item_id: {ndarray(n)}
         rating:  {ndarray(n)}
+    Notes:
+        - 数据来自[MoiveLens](http://files.grouplens.org/datasets/movielens/ml-100k.zip)
     """
     header = ['user_id', 'item_id', 'rating', 'timestamp']
     
