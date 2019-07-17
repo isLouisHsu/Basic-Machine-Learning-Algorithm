@@ -67,64 +67,42 @@ def get_cosine_similarity_matrix(x):
     cosine = x_normd.dot(x_normd.T)
     return cosine
 
-def according_to_user(train_matrix, test_matrix, cols=80, n_keep=50):
+def predict(train_matrix, test_matrix, compress=80, n_keep=50):
 
-    # 将矩阵SVD分解
+    # Singular value decomposition
     _, _, vh = np.linalg.svd(train_matrix)
 
-    # 压缩原矩阵，A' = A V[:, :k]
-    train_compressed_col = train_matrix.dot(vh[: cols].T)   # N_USERS x cols
+    # Compress matrix
+    train_compressed = train_matrix.dot(vh.T[:, : compress])# N x compress
 
-    # 计算相似度矩阵
-    similarity_user = get_cosine_similarity_matrix(train_compressed_col)
-
-    # 预测
-    pred_matrix = np.zeros_like(test_matrix)        # 保存预测结果
-    to_pred = np.array(np.where(test_matrix != 0))  # 需要预测的数据位置, (2, n)
-
-    for i in range(to_pred.shape[1]):
-
-        r, c = to_pred[:, i]                        # r为用户索引，c为电影索引
-
-        id = np.argsort(similarity_user[r])[::-1]   # 将用户以相似度从大到小排序
-        id = id[1: n_keep + 1]                      # 获取相似度最大的几个用户，除自身
-        rates = train_matrix[id, c]                 # 获取这几个用户对该电影的评分
-        rates = rates[rates!=0]                     # 已评价的数据
-
-        rate = np.mean(rates) if rates.shape[0] != 0 else 0
-        pred_matrix[r, c] = rate
-
-    return pred_matrix
+    # Calculate similarity matrix
+    similarity = get_cosine_similarity_matrix(train_compressed)
+        
+    prediction = np.zeros_like(test_matrix)             # to preserve the predicted results
+    to_pred = np.array(np.where(test_matrix != 0))      # the indexes to be predicted, shape(2, n)
     
-
-def according_to_item(train_matrix, test_matrix, cols=80, n_keep=100):
-  
-    # 将矩阵SVD分解
-    u, _, _ = np.linalg.svd(train_matrix)
-
-    # 压缩原矩阵，A' = U[:. :k]^T A
-    train_compressed_row = u.T[: cols].dot(train_matrix)    # cols    x N_ITEMS
-
-    # 计算相似度矩阵
-    similarity_item = get_cosine_similarity_matrix(train_compressed_row.T)
-
-    # 预测
-    pred_matrix = np.zeros_like(test_matrix)        # 保存预测结果
-    to_pred = np.array(np.where(test_matrix != 0))  # 需要预测的数据位置, (2, n)
-
+    # predict
     for i in range(to_pred.shape[1]):
 
-        r, c = to_pred[:, i]                        # r为用户索引，c为电影索引
+        r, c = to_pred[:, i]                            # `r` is the index of user, `c` is the the index of item
 
-        id = np.argsort(similarity_item[c])[::-1]   # 将电影以相似度从大到小排序
-        id = id[1: n_keep + 1]                      # 获取相似度最大的几部电影，除自身
-        rates = train_matrix[r, id]                 # 获取几部电影评分
-        rates = rates[rates!=0]                     # 已评价的数据
+        id = np.argsort(similarity[r])[::-1]            # sort samples according to similarity in descending order
+        id = id[1: n_keep + 1]                          # top `n_keep` users
+        rates = train_matrix[id, c]                     # get the ratings of chosen samples
+        rates = rates[rates!=0]                         # filter non-zero data
 
         rate = np.mean(rates) if rates.shape[0] != 0 else 0
-        pred_matrix[r, c] = rate
+        prediction[r, c] = rate
 
-    return pred_matrix
+    return prediction
+
+def according_to_user(train_matrix, test_matrix, compress=80, n_keep=50):
+    prediction = predict(train_matrix, test_matrix, compress, n_keep)
+    return prediction
+
+def according_to_item(train_matrix, test_matrix, compress=80, n_keep=100):
+    prediction = predict(train_matrix.T, test_matrix.T, compress, n_keep).T
+    return prediction
 
 if __name__ == "__main__":
 
@@ -132,9 +110,9 @@ if __name__ == "__main__":
     shape = (N_USERS, N_ITEMS)
     
     ## 载入数据
-    train_raw = load('../origin/ml-100k/u1.base')
+    train_raw = load('./u1.base')
     train_matrix = get_matrix(train_raw, shape)
-    test_raw  = load('../origin/ml-100k/u1.test')
+    test_raw  = load('./u1.test')
     test_matrix  = get_matrix(test_raw,  shape)
 
     ## 预测
