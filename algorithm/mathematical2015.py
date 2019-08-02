@@ -49,13 +49,13 @@ def load_mat(filename):
 def show2dfig(X, labels=None):
     if X.shape[1] != 2: print('dimension error!'); return
     plt.figure()
-    plt.scatter(X[:, 0], X[:, 1], c=labels)
+    plt.scatter(X[:, 0], X[:, 1], c=labels, marker='.')
     plt.show()
 def show3dfig(X, labels=None):
     if X.shape[1] != 3: print('dimension error!'); return
     fig = plt.figure()
     ax = fig.gca(projection='3d')
-    ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=labels)
+    ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=labels, marker='.')
     plt.show()
 
 def exercise1(X):
@@ -198,8 +198,8 @@ def exercise4a(X):
         angval = np.arccos(np.clip(cosval, -1, 1)) * 180 / np.pi
         return angval
     def mark(k=10, d=0.2, thresh=5):
-        # vecs = np.load("./data/vec.npy")
-        vecs = loadmat('./2015年全国研究生数学建模竞赛B题/Xs10.mat')['X1'].T
+        vecs = np.load("./data/vec.npy")
+        # vecs = loadmat('./2015年全国研究生数学建模竞赛B题/Xs10.mat')['X1'].T
 
         points = np.c_[X, np.zeros(n_samples)]       # 最后一列用于表示类别
         Xrest = np.c_[X, np.zeros(n_samples), np.arange(n_samples)] # -1列对数据进行标号，表示与原数据的映射，-2列记录数据所属类别
