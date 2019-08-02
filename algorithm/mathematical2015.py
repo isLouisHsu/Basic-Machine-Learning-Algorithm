@@ -59,7 +59,7 @@ def show3dfig(X, labels=None):
     plt.show()
 
 def exercise1(X):
-    reduce_dim = PCA(n_component=2)
+    reduce_dim = PCA(n_components=2)
     X_reduced = reduce_dim.fit_transform(X)
     X_reduced = X_reduced.astype('float')
 
@@ -74,7 +74,7 @@ def exercise2a(X):
     show2dfig(X)
 
     # 对数据进行重建
-    reduce_dim = PCA(n_component=2)
+    reduce_dim = PCA(n_components=2)
     X = reduce_dim.fit_transform(X)
     show2dfig(X)
 
@@ -97,7 +97,7 @@ def exercise2b(X):
     # show3dfig(X, y)
 
     # 对数据进行重建
-    reduce_dim = PCA(n_component=3)
+    reduce_dim = PCA(n_components=3)
     X = reduce_dim.fit_transform(X)
     # show3dfig(X)
 
@@ -134,7 +134,7 @@ def exercise2c(X):
     show3dfig(X, y)
 
     # 对数据进行重建
-    reduce_dim = PCA(n_component=2)
+    reduce_dim = PCA(n_components=2)
     X = reduce_dim.fit_transform(X)
     show2dfig(X, y)
 
@@ -197,7 +197,7 @@ def exercise4a(X):
         cosval = x.dot(y) / (np.linalg.norm(x)*np.linalg.norm(y))
         angval = np.arccos(np.clip(cosval, -1, 1)) * 180 / np.pi
         return angval
-    def mark(k=10, d=0.2, thresh=5):
+    def mark(k=10, d=0.2, a=5):
         vecs = np.load("./data/vec.npy")
         # vecs = loadmat('./2015年全国研究生数学建模竞赛B题/Xs10.mat')['X1'].T
 
@@ -223,7 +223,7 @@ def exercise4a(X):
                     idx_ = idx[i]
                     v1 = vecs[int(Xrest[idx_, 4])]
                     ang = angle(v0, v1)
-                    if (ang < thresh) or (ang > 180 - thresh):
+                    if (ang < a) or (ang > 180 - a):
                         points[int(Xrest[idx_, -1]), -1] = nowMax
                         Xrest[idx_, -2] = nowMax
                 # 移除当前点
@@ -293,10 +293,10 @@ def exercise4b():
 
 
 if __name__ == '__main__':
-    X = load_mat(os.path.join(data_path, exercise1_fname)); exercise1(X)
+    # X = load_mat(os.path.join(data_path, exercise1_fname)); exercise1(X)
 
-    X = load_mat(os.path.join(data_path, exercise2a_fname)); exercise2a(X)
-    X = load_mat(os.path.join(data_path, exercise2b_fname)); exercise2b(X)
-    X = load_mat(os.path.join(data_path, exercise2c_fname)); exercise2c(X)
+    # X = load_mat(os.path.join(data_path, exercise2a_fname)); exercise2a(X)
+    # X = load_mat(os.path.join(data_path, exercise2b_fname)); exercise2b(X)
+    # X = load_mat(os.path.join(data_path, exercise2c_fname)); exercise2c(X)
 
     X = load_mat(os.path.join(data_path, exercise4a_fname)); exercise4a(X)
