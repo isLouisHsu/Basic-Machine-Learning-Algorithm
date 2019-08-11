@@ -4,7 +4,7 @@
 @Auther: louishsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-08-09 17:11:31
-@LastEditTime: 2019-08-11 10:21:00
+@LastEditTime: 2019-08-11 10:46:50
 @Update: 
 '''
 import numpy as np
@@ -20,7 +20,9 @@ class LocallyLinearEmbedding():
     Attributes:
         n_neighbors:  {int}
         n_components: {int}
-        W: {ndarray}
+        W: {ndarray} 
+            $$ W = \left[ \begin{matrix} w_1 & w_2 & \cdots & w_{n_samples} \end{matrix} \right] $$
+            $$ w_i = \left[ \begin{matrix} w_{i1} & w_{i2} & \cdots & w_{i, n_samples} \end{matrix} \right]^T $$
     """
     def __init__(self, n_neighbors, n_components=2):
         
