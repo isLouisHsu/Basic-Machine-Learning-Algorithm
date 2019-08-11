@@ -1,10 +1,10 @@
 '''
 @Description: 
 @Version: 1.0.0
-@Auther: louishsu
+@Author: louishsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-08-09 17:11:31
-@LastEditTime: 2019-08-11 10:46:50
+@LastEditTime: 2019-08-11 11:12:07
 @Update: 
 '''
 import numpy as np
