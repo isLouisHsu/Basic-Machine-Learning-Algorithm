@@ -4,7 +4,7 @@
 @Auther: louishsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-08-09 17:11:31
-@LastEditTime: 2019-08-09 18:12:38
+@LastEditTime: 2019-08-11 10:21:00
 @Update: 
 '''
 import numpy as np
@@ -57,6 +57,7 @@ class LocallyLinearEmbedding():
             for j in range(self.n_neighbors):
                 self.W[i, idx[j]] = w[j]
         
+        self.W = self.W.T
         return self.W
 
     def transform(self, X):
@@ -137,7 +138,7 @@ def plot_embedding(X, y, images, title=None, t=6e-3, figsize=(12, 9)):
 
 if __name__ == "__main__":
     
-    digits = load_digits(n_class=3)
+    digits = load_digits(n_class=6)
     X = digits.data
     y = digits.target
     images = digits.images
@@ -148,6 +149,6 @@ if __name__ == "__main__":
     lle = LocallyLinearEmbedding(30, 2)
     X_lle = lle.fit_transform(X)
 
-    plot_embedding(X_lle, y, images, title=None, t=6e-3, figsize=(12, 9))
+    plot_embedding(X_lle, y, images, title=None, t=2e-3, figsize=(12, 9))
 
 
