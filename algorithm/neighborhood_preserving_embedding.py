@@ -4,7 +4,7 @@
 @Author: louishsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-08-09 17:11:31
-@LastEditTime: 2019-08-12 10:27:02
+@LastEditTime: 2019-08-12 10:26:07
 @Update: 
 '''
 import numpy as np
@@ -51,15 +51,14 @@ def plot_embedding(X, y, images, title=None, t=6e-3, figsize=(12, 9)):
     plt.show()
 
 
-class LocallyLinearEmbedding():
-    """ Locally Linear Embedding
+class NeighborhoodPreservingEmbedding():
+    """ Neighborhood Preserving Embedding
 
     Attributes:
         n_neighbors:  {int}
         n_components: {int}
         W_: {ndarray} 
-            $$ W = \left[ \begin{matrix} w_1 & w_2 & \cdots & w_{n_samples} \end{matrix} \right] $$
-            $$ w_i = \left[ \begin{matrix} w_{i1} & w_{i2} & \cdots & w_{i, n_samples} \end{matrix} \right]^T $$
+        components_:    {ndarray(n_samples, n_components)}
     """
     def __init__(self, n_neighbors, n_components=2, k_skip=1):
         
@@ -68,13 +67,12 @@ class LocallyLinearEmbedding():
         self.k_skip = k_skip
 
         self.W_ = None
+        self.components_ = None
 
     def fit(self, X):
         """ 
         Params:
             X: {ndarray(n_samples, n_features)}
-        Returns:
-            W: {ndarray(n_samples, n_samples)}
         """
         from sklearn.neighbors import KDTree
         kdtree = KDTree(X, metric='euclidean')
@@ -96,7 +94,23 @@ class LocallyLinearEmbedding():
             for j in range(self.n_neighbors):
                 self.W_[idx[j], i] = w[j]
         
-        return self.W_
+        ## 求取矩阵 M = (I - W)(I - W)^T
+        I = np.eye(n_samples)
+        M = (I - self.W_).dot((I - self.W_).T)
+
+        ## 求解 X M X^T \alpha = \lambda X X^T \alpha
+        A1 = X.T.dot(M).dot(X)
+        A2 = X.T.dot(X)
+        eps = np.finfo(float).eps * np.eye(A2.shape[0])
+        A = np.linalg.inv(A2 + eps).dot(A1)
+
+        ## 对 A 进行特征分解，并按特征值升序排序
+        eigval, eigvec = np.linalg.eig(A)
+        eigvec = eigvec[:, np.argsort(eigval)]
+        eigval = eigval[np.argsort(eigval)]
+        
+        ## 选取 D 维
+        self.components_ = eigvec[:, self.k_skip: self.n_components + self.k_skip]
 
     def transform(self, X):
         """ 
@@ -105,19 +119,8 @@ class LocallyLinearEmbedding():
         Returns:
             Y: {ndarray(n_samples, n_components)}
         """
-        n_samples, n_features = X.shape
-
-        ## 求取矩阵 A = (I - W)(I - W)^T
-        I = np.eye(n_samples)
-        A = (I - self.W_).dot((I - self.W_).T)
-
-        ## 对 A 进行特征分解，并按特征值升序排序
-        eigval, eigvec = np.linalg.eig(A)
-        eigvec = eigvec[:, np.argsort(eigval)]
+        Y = X.dot(self.components_)
         
-        ## 选取 D 维
-        Y = eigvec[:, self.k_skip: self.n_components + self.k_skip]
-
         return Y
 
     def fit_transform(self, X):
@@ -144,17 +147,17 @@ if __name__ == "__main__":
     y = digits.target
     images = digits.images
 
-    lle = LocallyLinearEmbedding(30, 2)
-    X_lle = lle.fit_transform(X)
+    npe = NeighborhoodPreservingEmbedding(30, 2, k_skip=3)
+    X_npe = npe.fit_transform(X)
 
-    plot_embedding(X_lle, y, images, title=None, t=2e-3, figsize=(12, 9))
+    plot_embedding(X_npe, y, images, title=None, t=2e-3, figsize=(12, 9))
 
     # -----------------------------------------------------------------------------
     X, color = datasets.samples_generator.make_s_curve(1000, random_state=0)
     
-    lle = LocallyLinearEmbedding(10, 2)
-    X_lle = lle.fit_transform(X)
+    npe = NeighborhoodPreservingEmbedding(10, 2)
+    X_npe = npe.fit_transform(X)
 
     plt.figure()
-    plt.scatter(X_lle[:, 0], X_lle[:, 1], c=color)
+    plt.scatter(X_npe[:, 0], X_npe[:, 1], c=color)
     plt.show()

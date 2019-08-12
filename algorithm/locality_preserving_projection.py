@@ -6,7 +6,7 @@
 @Github: https://github.com/isLouisHsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-08-11 15:21:23
-@LastEditTime: 2019-08-11 17:51:01
+@LastEditTime: 2019-08-12 10:14:41
 @Update: 
 '''
 import numpy as np
@@ -141,13 +141,10 @@ if __name__ == "__main__":
     from sklearn import datasets
     
     # -----------------------------------------------------------------------------
-    digits = datasetsload_digits(n_class=6)
+    digits = datasets.load_digits(n_class=6)
     X = digits.data
     y = digits.target
     images = digits.images
-
-    n_samples, n_features = X.shape
-    n_neighbors = 30
 
     lpp = LocalityPreservingProjection(30, 2)
     X_lpp = lpp.fit_transform(X)
