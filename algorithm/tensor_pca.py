@@ -29,7 +29,7 @@ class NDarrayPCA(object):
 
         for i_dim in range(self.n_dims):
             self.decomposers[i_dim] = skPCA(n_components=self.__n_components(i_dim)) \
-                        if self.use_sklearn else myPCA(n_component=self.__n_components(i_dim))
+                        if self.use_sklearn else myPCA(n_components=self.__n_components(i_dim))
             
             ## transpose tensor
             idx[-1], idx[i_dim + 1] = idx[i_dim + 1], idx[-1]

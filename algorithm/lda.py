@@ -1,63 +1,72 @@
+# -*- coding: utf-8 -*-
+'''
+@Description: 
+@Version: 1.0.0
+@Author: louishsu
+@Github: https://github.com/isLouisHsu
+@E-mail: is.louishsu@foxmail.com
+@Date: 2019-07-17 18:07:29
+@LastEditTime: 2019-08-20 15:37:25
+@Update: 
+'''
 import numpy as np
 from matplotlib import pyplot as plt
 
 class LDA(object):
-    """ 先行判别分析
+    """ Linear Discriminant Analysis 
 
     Attributes:
-        n_components:   {int} 主成分个数
-        axis:           {ndarray(n_features, n_component)}
+        n_components: {int}
+        components_:  {ndarray(n_components, n_features)}
     Notes:
-        S_W = \frac{1}{m} \sum_{j=1}^C \sum_{i=1}^m_j (x^{(i)} - \mu^{(j)}) (x^{(i)} - \mu^{(j)})^T
-        S_B = \sum_{j=1}^C \frac{m_j}{m} (\mu^{(j)} - \mu) (\mu^{(j)} - \mu)^T
+    -   S_W = \frac{1}{m} \sum_{j=1}^C \sum_{i=1}^m_j (x^{(i)} - \mu^{(j)}) (x^{(i)} - \mu^{(j)})^T
+    -   S_B = \sum_{j=1}^C \frac{m_j}{m} (\mu^{(j)} - \mu) (\mu^{(j)} - \mu)^T
+    -   S_W^{-1} S_B \alpha = \lambda \alpha
+    -   由于特征分解时，计算出现复数，故进行相应处理，详情查看https://louishsu.xyz/2019/04/22/LDA/
     Example:
 
     """
 
     def __init__(self, n_components=-1):
         self.n_components = n_components
-        self.axis = None
+        self.components_ = None
 
-    def fit(self, X, y, prop=0.99):
+    def fit(self, X, y):
         """ train the model
         Params:
             X:      {ndarray(n_samples, n_features)}
             y:      {ndarray(n_samples)}
-            prop:   {float}:  在[0, 1]范围内，表示取特征值之和占所有特征值的比重
-        Notes:
-            - `prop`参数仅在`n_components=-1`时生效
         """
         labels = list(set(list(y)))
         n_class = len(labels)
         n_samples, n_feats = X.shape
 
-        ## 计算 S_W, S_B
         S_W = np.zeros(shape=(n_feats, n_feats))
         S_B = np.zeros(shape=(n_feats, n_feats))
         mean_ = np.mean(X, axis=0)
         for i_class in range(n_class):
             X_ = X[y==labels[i_class]]
-            weight = X_.shape[0] / n_samples
             means_ = np.mean(X_, axis=0)
-            S_W += ((X_ - means_).T).dot(X_ - means_) / X_.shape[0] * weight
-            S_B += (means_ - mean_).dot((means_ - mean_).T) * weight
 
-        ## 计算特征对
-        eigVal, eigVec = np.linalg.eig(np.linalg.inv(S_W).dot(S_B))
-        order = np.argsort(eigVal)[::-1]
-        eigVal = eigVal[order]
-        eigVec = eigVec.T[order].T
+            X_ = X_ - means_
+            means_ = (means_ - mean_).reshape(1, -1)
 
-        ## 选取主轴
-        if self.n_components == -1:
-            sumOfEigVal = np.sum(eigVal)
-            sum_tmp = 0
-            for k in range(eigVal.shape[0]):
-                sum_tmp += eigVal[k]
-                if sum_tmp > prop * sumOfEigVal:
-                    self.n_components = k + 1
-                    break
-        self.axis = eigVec[:, :self.n_components]
+            S_W += (X_.T).dot(X_) * (1 / n_samples)
+            S_B += (means_.T).dot(means_) * (X_.shape[0] / n_samples)
+
+        s, u = np.linalg.eigh(S_W)
+        s_sqrt = np.diag(np.sqrt(s))
+        s_sqrt_inv = np.linalg.inv(s_sqrt)
+
+        A = s_sqrt_inv.dot(u.T).dot(S_B).dot(u).dot(s_sqrt_inv)
+        eigval, P = np.linalg.eigh(A)
+        eigvec = u.dot(s_sqrt_inv).dot(P)
+
+        order = np.argsort(eigval)[::-1]
+        eigval = eigval[order]
+        eigvec = eigvec[:, order]
+
+        self.components_ = eigvec[:, :self.n_components].T
 
     def transform(self, X):
         """
@@ -66,19 +75,19 @@ class LDA(object):
         Returns:
             X:  {ndarray(n_samples, n_components)}
         """
-        X = X.dot(self.axis)
-        return X
+        X_ = X.dot(self.components_.T)
+        return X_
     
-    def fit_transform(self, X, y, prop=0.99):
+    def fit_transform(self, X, y):
         """
         Params:
             X:  {ndarray(n_samples, n_features)}
         Returns:
             X:  {ndarray(n_samples, n_components)}
         """
-        self.fit(X, y, prop=prop)
-        X = self.transform(X)
-        return X
+        self.fit(X, y)
+        X_ = self.transform(X)
+        return X_
     
     def transform_inv(self, X):
         """
@@ -87,8 +96,8 @@ class LDA(object):
         Returns:
             X:  {ndarray(n_samples, n_features)}
         """
-        X = X.dot(self.axis.T)
-        return X
+        X_ = X.dot(self.components_)
+        return X_
 
 if __name__ == "__main__":
     from sklearn.datasets import load_iris
@@ -98,7 +107,7 @@ if __name__ == "__main__":
 
     decomposer = LDA(n_components=2)
     X1 = decomposer.fit_transform(X, y)
-    decomposer = PCA(n_component=2)
+    decomposer = PCA(n_components=2)
     X2 = decomposer.fit_transform(X, y)
 
     plt.figure("LDA")

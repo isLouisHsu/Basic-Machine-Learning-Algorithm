@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+'''
+@Description: 
+@Version: 1.0.0
+@Author: louishsu
+@Github: https://github.com/isLouisHsu
+@E-mail: is.louishsu@foxmail.com
+@Date: 2019-07-17 18:07:30
+@LastEditTime: 2019-08-20 15:35:55
+@Update: 
+'''
 import os
 import cv2
 import numpy as np
@@ -38,12 +49,12 @@ exercise4a_fname = '第4题数据/4a.mat'
 class PCA():
     """ 主成分分析
     Attributes:
-        n_component: {int} 主成分个数
+        n_components: {int} 主成分个数
         meanVal: {ndarray(n_features,)} 各维度的均值
-        axis: {ndarray(n_features, n_component)}
+        axis: {ndarray(n_features, n_components)}
     """
-    def __init__(self, n_component=-1):
-        self.n_component = n_component
+    def __init__(self, n_components=-1):
+        self.n_components = n_components
         self.meanVal = None
         self.axis = None
     def fit(self, X, prop=0.99):
@@ -52,7 +63,7 @@ class PCA():
             X: {ndarray(n_samples, n_features)}
             prop: {float}:  在[0, 1]范围内，表示取特征值之和占所有特征值的比重
         Notes:
-            - `prop`参数仅在`n_component=-1`时生效
+            - `prop`参数仅在`n_components=-1`时生效
         '''
         # step 1: 去均值化
         self.meanVal = np.mean(X, axis=0)
@@ -65,21 +76,21 @@ class PCA():
         order = np.argsort(eigVal)[::-1]
         eigVal = eigVal[order]
         eigVec = eigVec.T[order].T
-        # 若`n_component`未指定，则选择满足
+        # 若`n_components`未指定，则选择满足
         #   $$
         #   \frac{\sum_i \lambda_i}{\sum_{j=1}^n \lambda_j} \geq 0
         #   $$
-        # 的`n_component`
-        if self.n_component == -1:
+        # 的`n_components`
+        if self.n_components == -1:
             sumOfEigVal = np.sum(eigVal)
             sum_tmp = 0
             for k in range(eigVal.shape[0]):
                 sum_tmp += eigVal[k]
                 if sum_tmp > prop * sumOfEigVal:
-                    self.n_component = k + 1
+                    self.n_components = k + 1
                     break
         # 选择主成分分量
-        self.axis = eigVec[:, :self.n_component]
+        self.axis = eigVec[:, :self.n_components]
     def transform(self, X):
         """
         Args:
@@ -118,7 +129,7 @@ def show3dfig(X, labels=None):
     plt.show()
 
 def exercise1(X):
-    reduce_dim = PCA(n_component=2)
+    reduce_dim = PCA(n_components=2)
     X_reduced = reduce_dim.fit_transform(X)
     X_reduced = X_reduced.astype('float')
 
@@ -133,7 +144,7 @@ def exercise2a(X):
     show2dfig(X)
 
     # 对数据进行重建
-    reduce_dim = PCA(n_component=2)
+    reduce_dim = PCA(n_components=2)
     X = reduce_dim.fit_transform(X)
     show2dfig(X)
 
@@ -156,7 +167,7 @@ def exercise2b(X):
     # show3dfig(X, y)
 
     # 对数据进行重建
-    reduce_dim = PCA(n_component=3)
+    reduce_dim = PCA(n_components=3)
     X = reduce_dim.fit_transform(X)
     # show3dfig(X)
 
@@ -193,7 +204,7 @@ def exercise2c(X):
     show3dfig(X, y)
 
     # 对数据进行重建
-    reduce_dim = PCA(n_component=2)
+    reduce_dim = PCA(n_components=2)
     X = reduce_dim.fit_transform(X)
     show2dfig(X, y)
 
@@ -237,7 +248,7 @@ def exercise4a(X):
                                             # reshape(1, -1) if it contains a single sample.
             idx = kdtree.query(X_i, 10-1, return_distance=False)
             X_nn = X[idx][0]
-            pca = PCA(n_component=n_features)
+            pca = PCA(n_components=n_features)
             pca.fit(X_nn)
             vecs[i] = pca.components_[-1]   # 最次的分量为法向量
         np.save("./data/vec.npy", vecs)
@@ -323,7 +334,7 @@ def exercise4a(X):
 
     
     # 对数据进行重建
-    reduce_dim = PCA(n_component=3)
+    reduce_dim = PCA(n_components=3)
     X = reduce_dim.fit_transform(X)
     # show3dfig(X)
 
