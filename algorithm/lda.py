@@ -6,29 +6,27 @@
 @Github: https://github.com/isLouisHsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-07-17 18:07:29
-@LastEditTime: 2019-08-20 15:37:25
+@LastEditTime: 2019-08-26 20:43:07
 @Update: 
 '''
 import numpy as np
 from matplotlib import pyplot as plt
 
+import numpy as np
+
 class LDA(object):
-    """ Linear Discriminant Analysis 
+    """ 
 
     Attributes:
         n_components: {int}
+        means_: {ndarray(n_classes, n_features)}
         components_:  {ndarray(n_components, n_features)}
-    Notes:
-    -   S_W = \frac{1}{m} \sum_{j=1}^C \sum_{i=1}^m_j (x^{(i)} - \mu^{(j)}) (x^{(i)} - \mu^{(j)})^T
-    -   S_B = \sum_{j=1}^C \frac{m_j}{m} (\mu^{(j)} - \mu) (\mu^{(j)} - \mu)^T
-    -   S_W^{-1} S_B \alpha = \lambda \alpha
-    -   由于特征分解时，计算出现复数，故进行相应处理，详情查看https://louishsu.xyz/2019/04/22/LDA/
-    Example:
-
     """
 
-    def __init__(self, n_components=-1):
+    def __init__(self, n_components):
         self.n_components = n_components
+
+        self.means_ = None
         self.components_ = None
 
     def fit(self, X, y):
@@ -38,15 +36,18 @@ class LDA(object):
             y:      {ndarray(n_samples)}
         """
         labels = list(set(list(y)))
-        n_class = len(labels)
-        n_samples, n_feats = X.shape
+        n_classes = len(labels)
+        n_samples, n_features = X.shape
 
-        S_W = np.zeros(shape=(n_feats, n_feats))
-        S_B = np.zeros(shape=(n_feats, n_feats))
+        self.means_ = np.zeros((n_classes, n_features))
+        S_W = np.zeros(shape=(n_features, n_features))
+        S_B = np.zeros(shape=(n_features, n_features))
         mean_ = np.mean(X, axis=0)
-        for i_class in range(n_class):
+        for i_class in range(n_classes):
             X_ = X[y==labels[i_class]]
+            
             means_ = np.mean(X_, axis=0)
+            self.means_[i_class] = means_
 
             X_ = X_ - means_
             means_ = (means_ - mean_).reshape(1, -1)
@@ -99,6 +100,24 @@ class LDA(object):
         X_ = X.dot(self.components_)
         return X_
 
+    def predict(self, X):
+        """
+        Params:
+            X:  {ndarray(n_samples, n_features)}
+        Returns:
+            y:  {ndarray(n_samples)}
+        """
+        n_samples, n_features = X.shape
+        y = np.zeros(n_samples, dtype=np.int)
+        
+        X_ = self.transform(X)
+        means_ = self.transform(self.means_)
+
+        for i in range(n_samples):
+            y[i] = np.argmin(np.linalg.norm(means_ - X_[i], axis=1))
+        
+        return y
+
 if __name__ == "__main__":
     from sklearn.datasets import load_iris
     from p50_pca import PCA
@@ -114,4 +133,23 @@ if __name__ == "__main__":
     plt.scatter(X1[:, 0], X1[:, 1], c=y)
     plt.figure("PCA")
     plt.scatter(X2[:, 0], X2[:, 1], c=y)
+    plt.show()
+    
+    
+    from matplotlib import pyplot as plt
+    from sklearn.datasets import make_blobs
+
+    X, y = make_blobs(n_samples=[200, 200])
+
+    plt.figure()
+    plt.scatter(X[:, 0], X[:, 1], c=y)
+    plt.show()
+
+    clf = LDA(n_components=1)
+    clf.fit(X, y)
+
+    y_pred = clf.predict(X)
+
+    plt.figure()
+    plt.scatter(X[:, 0], X[:, 1], c=y_pred)
     plt.show()
