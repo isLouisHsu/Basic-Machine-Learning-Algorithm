@@ -6,7 +6,7 @@
 @Github: https://github.com/isLouisHsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-07-17 18:07:29
-@LastEditTime: 2019-08-26 20:43:07
+@LastEditTime: 2019-08-27 11:18:41
 @Update: 
 '''
 import numpy as np
@@ -68,6 +68,7 @@ class LDA(object):
         eigvec = eigvec[:, order]
 
         self.components_ = eigvec[:, :self.n_components].T
+        self.components_ /= np.linalg.norm(self.components_, axis=1).reshape(1, -1)
 
     def transform(self, X):
         """
@@ -119,37 +120,80 @@ class LDA(object):
         return y
 
 if __name__ == "__main__":
-    from sklearn.datasets import load_iris
+
+    # # ====================================================
+    # from sklearn.datasets import load_iris
+    # from p50_pca import PCA
+    
+    # X, y = load_iris(True)
+
+    # decomposer = LDA(n_components=2)
+    # X1 = decomposer.fit_transform(X, y)
+    # decomposer = PCA(n_components=2)
+    # X2 = decomposer.fit_transform(X, y)
+
+    # plt.figure("LDA")
+    # plt.scatter(X1[:, 0], X1[:, 1], c=y)
+    # plt.figure("PCA")
+    # plt.scatter(X2[:, 0], X2[:, 1], c=y)
+    # plt.show()
+    
+    # # ====================================================
+    # from matplotlib import pyplot as plt
+    # from sklearn.datasets import make_blobs
+
+    # X, y = make_blobs(n_samples=[200, 200])
+
+    # plt.figure()
+    # plt.scatter(X[:, 0], X[:, 1], c=y)
+    # plt.show()
+
+    # clf = LDA(n_components=1)
+    # clf.fit(X, y)
+
+    # y_pred = clf.predict(X)
+
+    # plt.figure()
+    # plt.scatter(X[:, 0], X[:, 1], c=y_pred)
+    # plt.show()
+    
+    # ====================================================
+    from matplotlib import pyplot as plt
     from p50_pca import PCA
     
-    X, y = load_iris(True)
+    n_samples_per_class = 10000
+    t = np.pi / 4
 
-    decomposer = LDA(n_components=2)
-    X1 = decomposer.fit_transform(X, y)
-    decomposer = PCA(n_components=2)
-    X2 = decomposer.fit_transform(X, y)
+    M = np.array([[np.cos(t), -np.sin(t)], [np.sin(t), np.cos(t)]])
 
-    plt.figure("LDA")
-    plt.scatter(X1[:, 0], X1[:, 1], c=y)
-    plt.figure("PCA")
-    plt.scatter(X2[:, 0], X2[:, 1], c=y)
-    plt.show()
-    
-    
-    from matplotlib import pyplot as plt
-    from sklearn.datasets import make_blobs
+    x_ = np.random.normal(loc=0.0, scale=50.0, size=n_samples_per_class)
+    y_ = np.random.normal(loc=0.0, scale= 1.0, size=n_samples_per_class)
+    xy1 = np.r_[x_, y_].reshape(2, -1).T
+    xy1 = xy1.dot(M)
 
-    X, y = make_blobs(n_samples=[200, 200])
+    x_ = np.random.normal(loc=0.0, scale=50.0, size=n_samples_per_class)
+    y_ = np.random.normal(loc=0.0, scale= 1.0, size=n_samples_per_class)
+    xy2 = np.r_[x_, y_].reshape(2, -1).T
+    xy2 = xy2.dot(M)
 
-    plt.figure()
-    plt.scatter(X[:, 0], X[:, 1], c=y)
-    plt.show()
+    X1 = xy1 + np.array([0,  0]); y1 = np.zeros(n_samples_per_class)
+    X2 = xy2 + np.array([0, 20]); y2 = np.ones (n_samples_per_class)
+    X  = np.r_[X1, X2]; y = np.r_[y1, y2]
 
-    clf = LDA(n_components=1)
-    clf.fit(X, y)
 
-    y_pred = clf.predict(X)
+    lda = LDA(n_components=1)
+    X1 = lda.fit_transform(X, y)
+    pca = PCA(n_components=1)
+    X2 = pca.fit_transform(X, y)
 
-    plt.figure()
-    plt.scatter(X[:, 0], X[:, 1], c=y_pred)
+    plt.figure(figsize=(8, 8))
+
+    plt.scatter(X[::25, 0], X[::25, 1], c=y[::25])
+
+    xmin, xmax = np.min(X[:, 0]), np.max(X[:, 0])
+    f1 = lambda x: lda.components_[0, 1] / lda.components_[0, 0] * x
+    f2 = lambda x: pca.components_[1, 0] / pca.components_[0, 0] * x
+    plt.plot([xmin, xmax], [f1(xmin), f1(xmax)], c='red')
+    plt.plot([xmin, xmax], [f2(xmin), f2(xmax)], c='blue')
+
     plt.show()

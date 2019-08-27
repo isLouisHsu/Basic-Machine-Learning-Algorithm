@@ -6,7 +6,7 @@
 @Github: https://github.com/isLouisHsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-07-17 18:07:30
-@LastEditTime: 2019-08-20 15:35:55
+@LastEditTime: 2019-08-27 11:16:50
 @Update: 
 '''
 import os
@@ -50,13 +50,13 @@ class PCA():
     """ 主成分分析
     Attributes:
         n_components: {int} 主成分个数
-        meanVal: {ndarray(n_features,)} 各维度的均值
-        axis: {ndarray(n_features, n_components)}
+        means_: {ndarray(n_features,)} 各维度的均值
+        components_: {ndarray(n_features, n_components)}
     """
     def __init__(self, n_components=-1):
         self.n_components = n_components
-        self.meanVal = None
-        self.axis = None
+        self.means_ = None
+        self.components_ = None
     def fit(self, X, prop=0.99):
         ''' train the model
         Args:
@@ -66,8 +66,8 @@ class PCA():
             - `prop`参数仅在`n_components=-1`时生效
         '''
         # step 1: 去均值化
-        self.meanVal = np.mean(X, axis=0)
-        X_normalized = (X - self.meanVal)
+        self.means_ = np.mean(X, axis=0)
+        X_normalized = (X - self.means_)
         # step 2: 计算协方差矩阵
         cov = X_normalized.T.dot(X_normalized)
         # step 3: 特征值分解
@@ -90,7 +90,10 @@ class PCA():
                     self.n_components = k + 1
                     break
         # 选择主成分分量
-        self.axis = eigVec[:, :self.n_components]
+        self.components_ = eigVec[:, :self.n_components]
+        if self.n_components == 1:
+            self.components_ = self.components_.reshape(-1, 1)
+            
     def transform(self, X):
         """
         Args:
@@ -99,9 +102,9 @@ class PCA():
             X'_{nxk'} · V_{kxk'}^T = X''_{nxk}
         """
         # step 1: 去均值化
-        X_normalized = X - self.meanVal
+        X_normalized = X - self.means_
         # step 2: 投影
-        X_transformed = X_normalized.dot(self.axis)
+        X_transformed = X_normalized.dot(self.components_)
         return X_transformed
     def fit_transform(self, X, prop=0.99):
         self.fit(X, prop=prop)
@@ -109,8 +112,8 @@ class PCA():
     def transform_inv(self, X_transformed):
         """ 重构数据
         """
-        X_restructured = X_transformed.dot(self.axis.T)
-        X_restructured = X_restructured + self.meanVal
+        X_restructured = X_transformed.dot(self.components_.T)
+        X_restructured = X_restructured + self.means_
         return X_restructured
 
 def load_mat(filename):
@@ -173,7 +176,7 @@ def exercise2b(X):
 
     # 将重构后的数据投影到第1、2主成分张成的平面span{v1, v2}上
     # 这里用到了线性回归的投影解释
-    v = reduce_dim.axis[:, 0:2]
+    v = reduce_dim.components_[:, 0:2]
     norm_res = np.zeros(shape=(n_samples,))
     for i in range(n_samples):
         y_ = X[i]
