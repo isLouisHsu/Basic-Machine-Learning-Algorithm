@@ -35,19 +35,6 @@
 
 吴恩达课程笔记、代码
 
-- [ex-pdf](https://github.com/isLouisHsu/Basic-Machine-Learning-Algorithm/blob/master/Andrew Ng, Stanford University/ex-pdf)
-- [mlclass-ex1-linear_regression](https://github.com/isLouisHsu/Basic-Machine-Learning-Algorithm/blob/master/Andrew Ng, Stanford University/mlclass-ex1-linear_regression)
-- [mlclass-ex2-logistic_regression](https://github.com/isLouisHsu/Basic-Machine-Learning-Algorithm/blob/master/Andrew Ng, Stanford University/mlclass-ex2-logistic_regression)
-- [mlclass-ex3-1-multilabel_logistic_regression](https://github.com/isLouisHsu/Basic-Machine-Learning-Algorithm/blob/master/Andrew Ng, Stanford University/mlclass-ex3-1-multilabel_logistic_regression)
-- [mlclass-ex3-2-softmax_regression](https://github.com/isLouisHsu/Basic-Machine-Learning-Algorithm/blob/master/Andrew Ng, Stanford University/mlclass-ex3-2-softmax_regression)
-- [mlclass-ex4-neural_network](https://github.com/isLouisHsu/Basic-Machine-Learning-Algorithm/blob/master/Andrew Ng, Stanford University/mlclass-ex4-neural_network)
-- [mlclass-ex5-regularized_llinear_regression](https://github.com/isLouisHsu/Basic-Machine-Learning-Algorithm/blob/master/Andrew Ng, Stanford University/mlclass-ex5-regularized_llinear_regression)
-- [mlclass-ex6-svm](https://github.com/isLouisHsu/Basic-Machine-Learning-Algorithm/blob/master/Andrew Ng, Stanford University/mlclass-ex6-svm)
-- [mlclass-ex7-1-kmeans](https://github.com/isLouisHsu/Basic-Machine-Learning-Algorithm/blob/master/Andrew Ng, Stanford University/mlclass-ex7-1-kmeans)
-- [mlclass-ex7-2-image_compressive_based_on_kmeans](https://github.com/isLouisHsu/Basic-Machine-Learning-Algorithm/blob/master/Andrew Ng, Stanford University/mlclass-ex7-2-image_compressive_based_on_kmeans)
-- [mlclass-ex7-3-pca](https://github.com/isLouisHsu/Basic-Machine-Learning-Algorithm/blob/master/Andrew Ng, Stanford University/mlclass-ex7-3-pca)
-- [mlclass-ex8-ad_mr](https://github.com/isLouisHsu/Basic-Machine-Learning-Algorithm/blob/master/Andrew Ng, Stanford University/mlclass-ex8-ad_mr)
-
 ## Introduction to Algorithm
 
 《算法导论》学习。
