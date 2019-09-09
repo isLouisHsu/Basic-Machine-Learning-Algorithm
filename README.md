@@ -12,6 +12,7 @@
 - Classification
   - [Support Vector Machine(SVM)](https://github.com/isLouisHsu/Basic-Machine-Learning-Algorithm/blob/master/Algorithms/p97_svm.py)
   - [Naive Bayes(NB)](https://github.com/isLouisHsu/Basic-Machine-Learning-Algorithm/blob/master/Algorithms/p28_naive_bayes.py)
+  - [Minimum Distance](https://github.com/isLouisHsu/Basic-Machine-Learning-Algorithm/blob/master/Algorithms/mindist.py)
 - Clustering
   - [K-Means](https://github.com/isLouisHsu/Basic-Machine-Learning-Algorithm/blob/master/Algorithms/p78_kmeans.py)
   - [Mean Shift](https://github.com/isLouisHsu/Basic-Machine-Learning-Algorithm/blob/master/Algorithms/p71_meanshift.py)
