@@ -116,7 +116,7 @@ class LocalityPreservingProjection():
         Params:
             X: {ndarray(n_samples, n_features)}
         """
-        self._fit_transform()
+        self._fit_transform(X)
     
     def transform(self, X):
         """
