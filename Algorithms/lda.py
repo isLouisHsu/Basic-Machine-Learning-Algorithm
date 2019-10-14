@@ -1,18 +1,29 @@
 # -*- coding: utf-8 -*-
-'''
-@Description: 
-@Version: 1.0.0
-@Author: louishsu
-@Github: https://github.com/isLouisHsu
-@E-mail: is.louishsu@foxmail.com
-@Date: 2019-07-17 18:07:29
-@LastEditTime: 2019-09-05 20:15:18
-@Update: 
-'''
 import numpy as np
 from matplotlib import pyplot as plt
 
 import numpy as np
+
+def eig(A1, A2):
+    """
+    Params:
+        A1, A2: {ndarray(n, n)}
+    Returns:
+        eigval: {ndarray(n)}
+        eigvec: {ndarray(n, n)}
+    Notes:
+        A1 \alpha = \lambda A2 \alpha
+    """
+    s, u = np.linalg.eigh(A2)
+    s[s <= 0] = np.finfo(float).eps
+    s_sqrt = np.diag(np.sqrt(s))
+    s_sqrt_inv = np.linalg.inv(s_sqrt)
+
+    A = s_sqrt_inv.dot(u.T).dot(A1).dot(u).dot(s_sqrt_inv)
+    eigval, P = np.linalg.eigh(A)
+    eigvec = u.dot(s_sqrt_inv).dot(P)
+
+    return eigval, eigvec
 
 class LDA(object):
     """ 
@@ -55,13 +66,7 @@ class LDA(object):
             S_W += (X_.T).dot(X_) * (1 / n_samples)
             S_B += (means_.T).dot(means_) * (X_.shape[0] / n_samples)
 
-        s, u = np.linalg.eigh(S_W)
-        s_sqrt = np.diag(np.sqrt(s))
-        s_sqrt_inv = np.linalg.inv(s_sqrt)
-
-        A = s_sqrt_inv.dot(u.T).dot(S_B).dot(u).dot(s_sqrt_inv)
-        eigval, P = np.linalg.eigh(A)
-        eigvec = u.dot(s_sqrt_inv).dot(P)
+        eigval, eigvec = eig(S_B, S_W)
 
         order = np.argsort(eigval)[::-1]
         eigval = eigval[order]
