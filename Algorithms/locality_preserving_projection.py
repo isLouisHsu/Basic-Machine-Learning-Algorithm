@@ -123,9 +123,9 @@ class LocalityPreservingProjection():
         A2 = X.T.dot(D).dot(X)
 
         ## 求解拉普拉斯矩阵的特征分解
-        eps = np.finfo(float).eps * np.eye(A2.shape[0])
-        A  = np.linalg.inv(A2 + eps).dot(A1)
-        eigval, eigvec = np.linalg.eig(A)
+        # eps = np.finfo(float).eps * np.eye(A2.shape[0])
+        # A  = np.linalg.inv(A2 + eps).dot(A1)
+        # eigval, eigvec = np.linalg.eig(A)
         # 上三句改为
         eigval, eigvec = eig(A1, A2)
         
