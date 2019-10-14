@@ -50,6 +50,26 @@ def plot_embedding(X, y, images, title=None, t=6e-3, figsize=(12, 9)):
         
     plt.show()
 
+def eig(A1, A2):
+    """
+    Params:
+        A1, A2: {ndarray(n, n)}
+    Returns:
+        eigval: {ndarray(n)}
+        eigvec: {ndarray(n, n)}
+    Notes:
+        A1 \alpha = \lambda A2 \alpha
+    """
+    s, u = np.linalg.eigh(A2)
+    s[s <= 0] = np.finfo(float).eps
+    s_sqrt = np.diag(np.sqrt(s))
+    s_sqrt_inv = np.linalg.inv(s_sqrt)
+
+    A = s_sqrt_inv.dot(u.T).dot(A1).dot(u).dot(s_sqrt_inv)
+    eigval, P = np.linalg.eigh(A)
+    eigvec = u.dot(s_sqrt_inv).dot(P)
+
+    return eigval, eigvec
 
 class NeighborhoodPreservingEmbedding():
     """ Neighborhood Preserving Embedding
@@ -101,11 +121,14 @@ class NeighborhoodPreservingEmbedding():
         ## 求解 X M X^T \alpha = \lambda X X^T \alpha
         A1 = X.T.dot(M).dot(X)
         A2 = X.T.dot(X)
-        eps = np.finfo(float).eps * np.eye(A2.shape[0])
-        A = np.linalg.inv(A2 + eps).dot(A1)
 
-        ## 对 A 进行特征分解，并按特征值升序排序
+        ## 求解拉普拉斯矩阵的特征分解
+        eps = np.finfo(float).eps * np.eye(A2.shape[0])
+        A  = np.linalg.inv(A2 + eps).dot(A1)
         eigval, eigvec = np.linalg.eig(A)
+        # 上三句改为
+        eigval, eigvec = eig(A1, A2)
+
         eigvec = eigvec[:, np.argsort(eigval)]
         eigval = eigval[np.argsort(eigval)]
         
