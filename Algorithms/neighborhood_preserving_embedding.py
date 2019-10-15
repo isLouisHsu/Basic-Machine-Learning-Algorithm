@@ -11,6 +11,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import offsetbox
 
+from utils import eig
+
 def plot_embedding(X, y, images, title=None, t=6e-3, figsize=(12, 9)):
     """ Plot embedding
     
@@ -49,27 +51,6 @@ def plot_embedding(X, y, images, title=None, t=6e-3, figsize=(12, 9)):
         plt.title(title)
         
     plt.show()
-
-def eig(A1, A2):
-    """
-    Params:
-        A1, A2: {ndarray(n, n)}
-    Returns:
-        eigval: {ndarray(n)}
-        eigvec: {ndarray(n, n)}
-    Notes:
-        A1 \alpha = \lambda A2 \alpha
-    """
-    s, u = np.linalg.eigh(A2)
-    s[s <= 0] = np.finfo(float).eps
-    s_sqrt = np.diag(np.sqrt(s))
-    s_sqrt_inv = np.linalg.inv(s_sqrt)
-
-    A = s_sqrt_inv.dot(u.T).dot(A1).dot(u).dot(s_sqrt_inv)
-    eigval, P = np.linalg.eigh(A)
-    eigvec = u.dot(s_sqrt_inv).dot(P)
-
-    return eigval, eigvec
 
 class NeighborhoodPreservingEmbedding():
     """ Neighborhood Preserving Embedding
