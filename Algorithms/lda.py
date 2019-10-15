@@ -2,28 +2,8 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
+from utils import eig
 import numpy as np
-
-def eig(A1, A2):
-    """
-    Params:
-        A1, A2: {ndarray(n, n)}
-    Returns:
-        eigval: {ndarray(n)}
-        eigvec: {ndarray(n, n)}
-    Notes:
-        A1 \alpha = \lambda A2 \alpha
-    """
-    s, u = np.linalg.eigh(A2)
-    s[s <= 0] = np.finfo(float).eps
-    s_sqrt = np.diag(np.sqrt(s))
-    s_sqrt_inv = np.linalg.inv(s_sqrt)
-
-    A = s_sqrt_inv.dot(u.T).dot(A1).dot(u).dot(s_sqrt_inv)
-    eigval, P = np.linalg.eigh(A)
-    eigvec = u.dot(s_sqrt_inv).dot(P)
-
-    return eigval, eigvec
 
 class LDA(object):
     """ 
