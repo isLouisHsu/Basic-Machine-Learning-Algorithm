@@ -61,11 +61,12 @@ class NeighborhoodPreservingEmbedding():
         W_: {ndarray} 
         components_:    {ndarray(n_samples, n_components)}
     """
-    def __init__(self, n_neighbors, n_components=2, k_skip=1):
+    def __init__(self, n_neighbors, n_components=2, k_skip=2, tol=1e-12):
         
         self.n_neighbors  = n_neighbors
         self.n_components = n_components
         self.k_skip = k_skip
+        self.tol = tol
 
         self.W_ = None
         self.components_ = None
@@ -88,9 +89,16 @@ class NeighborhoodPreservingEmbedding():
             ## 求取矩阵 Z = (x - N).dot((x - N).T)
             N = X[idx]
             Z = (x - N).dot((x - N).T)
+            
             ## 求取权重 w_i
-            Z_inv = np.linalg.inv(Z + np.finfo(float).eps * np.eye(self.n_neighbors))
-            w = np.sum(Z_inv, axis=1) / np.sum(Z_inv)
+            # Z_inv = np.linalg.inv(Z + self.tol * np.eye(self.n_neighbors))
+            # w = np.sum(Z_inv, axis=1) / np.sum(Z_inv)
+            # 上两句改为
+            Z = Z + np.eye(self.n_neighbors) * np.trace(Z) * self.tol
+            w = np.linalg.pinv(Z).dot(np.ones(self.n_neighbors))
+            
+            w = w / np.sum(w)
+            
             ## 保存至 W
             for j in range(self.n_neighbors):
                 self.W_[idx[j], i] = w[j]
@@ -98,24 +106,22 @@ class NeighborhoodPreservingEmbedding():
         ## 求取矩阵 M = (I - W)(I - W)^T
         I = np.eye(n_samples)
         M = (I - self.W_).dot((I - self.W_).T)
-
+        
         ## 求解 X M X^T \alpha = \lambda X X^T \alpha
-        A1 = X.T.dot(M).dot(X)
+#         A1 = X.T.M.dot(X)
+#         A2 = X.T.dot(X)
+#         eigval, eigvec = eig(A1, A2)
+#         eigvec = eigvec[:, np.argsort(eigval)]
+        
+        ## 求解 X (I - M) X^T \alpha = \lambda X X^T \alpha
+        A1 = X.T.dot(I - M).dot(X)
         A2 = X.T.dot(X)
-
-        ## 求解拉普拉斯矩阵的特征分解
-        # eps = np.finfo(float).eps * np.eye(A2.shape[0])
-        # A  = np.linalg.inv(A2 + eps).dot(A1)
-        # eigval, eigvec = np.linalg.eig(A)
-        # 上三句改为
         eigval, eigvec = eig(A1, A2)
-
-        eigvec = eigvec[:, np.argsort(eigval)]
-        eigval = eigval[np.argsort(eigval)]
+        eigvec = eigvec[:, np.argsort(eigval)[::-1]]
         
         ## 选取 D 维
         self.components_ = eigvec[:, self.k_skip: self.n_components + self.k_skip]
-
+        
     def transform(self, X):
         """ 
         Params:
