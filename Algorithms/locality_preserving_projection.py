@@ -86,30 +86,44 @@ class LocalityPreservingProjection():
         Notes:
             $$ W_{ij} = \exp \left( - \frac{||x^{(i)} - x^{(j)}||_2^2}{t} \right) $$
         """
-        from sklearn import neighbors
-
         ## 计算邻接矩阵
-        self.W_ = neighbors.kneighbors_graph(X, self.n_neighbors, 
-                mode=self.mode, metric=self.metric).toarray()
+        from sklearn.neighbors import KDTree
+        kdtree = KDTree(X, metric='euclidean')
+        
+        n_samples, n_features = X.shape
+        self.W_ = np.zeros((n_samples, n_samples))
+        for i in range(n_samples):
+
+            ## 获取近邻样本点
+            xi = X[i]
+            idx = kdtree.query(xi.reshape(1, -1), self.n_neighbors + 1, return_distance=False)[0][1: ]
+            for j in idx:
+                xj = X[j]
+                self.W_[i, j] = \
+                self.W_[j, i] = \
+                    np.linalg.norm(xi - xj)
         
         ## 计算权值矩阵
-        self.W_ = np.exp(- self.W_ / self.t)
+        self.W_ = np.where(self.W_ != 0, np.exp(- self.W_**2 / self.t), self.W_)
         
         ## 计算度矩阵与拉普拉斯矩阵
         D = np.diag(np.sum(self.W_, axis=1))
+        I = np.eye(X.shape[0])
         L = D - self.W_
-
-        ## 求解拉普拉斯矩阵
-        A1 = X.T.dot(L).dot(X)
-        A2 = X.T.dot(D).dot(X)
-
-        ## 求解拉普拉斯矩阵的特征分解
-        # eps = np.finfo(float).eps * np.eye(A2.shape[0])
-        # A  = np.linalg.inv(A2 + eps).dot(A1)
-        # eigval, eigvec = np.linalg.eig(A)
-        # 上三句改为
-        eigval, eigvec = eig(A1, A2)
         
+        ## 求解拉普拉斯矩阵
+#         A1 = X.T.dot(L).dot(X)
+#         A2 = X.T.dot(D).dot(X)
+#         eigval, eigvec = eig(A1, A2)
+#         eigvec = eigvec[:, np.argsort(eigval)]
+        
+        ## 求解正则拉普拉斯矩阵
+        D_r = np.linalg.inv(np.sqrt(D))
+        L = D_r.dot(L).dot(D_r)
+        A1 = X.T.dot(I - L).dot(X)
+        A2 = X.T.dot(X) + np.diag(np.ones(X.shape[1])) * 1e-3
+        
+        eigval, eigvec = eig(A1, A2)
         eigvec = eigvec[:, np.argsort(eigval)[::-1]]
         
         ## 选取主分量
